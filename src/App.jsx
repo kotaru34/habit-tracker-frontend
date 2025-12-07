@@ -12,7 +12,8 @@ import GoalDetailsModal from './components/GoalDetailsModal';
 import { 
   Container, Typography, Card, CardContent, Button, Grid, Box, 
   Chip, Fab, IconButton, Dialog, DialogTitle, DialogContent, List,
-  ListItem, ListItemIcon, ListItemText, Snackbar, Alert, TextField
+  ListItem, ListItemIcon, ListItemText, Snackbar, Alert, TextField,
+  AppBar, Toolbar
 } from '@mui/material';
 import CheckCircleIcon    from '@mui/icons-material/CheckCircle';
 import FlagIcon           from '@mui/icons-material/Flag';
@@ -24,6 +25,8 @@ import CheckIcon          from '@mui/icons-material/Check';
 import TodayIcon          from '@mui/icons-material/Today';
 import EventRepeatIcon    from '@mui/icons-material/EventRepeat';
 import CalendarMonthIcon  from '@mui/icons-material/CalendarMonth';
+import LogoutIcon         from '@mui/icons-material/Logout';
+import AccountCircleIcon  from '@mui/icons-material/AccountCircle';
 // END UI stuff
 
 const API_URL = 'http://localhost:5000/api';
@@ -323,6 +326,42 @@ function MainApp({ user, onLogout }) {
   const otherHabits = habits.filter(habit => !isHabitForToday(habit));
 
   return (
+    <>
+    <AppBar
+        position="static"
+        color="transparent"
+        elevation={0}
+        sx={{
+          mb: 3,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          background: 'rgba(255,255,255,0.8)',
+          backdropFilter: 'blur(8px)'
+        }}
+      >
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Habit & Goals Tracker
+          </Typography>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <AccountCircleIcon fontSize="small" />
+              <Typography variant="body2">
+                {user.username || user.email}
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<LogoutIcon fontSize="small" />}
+              onClick={onLogout}
+            >
+              Logout
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={4} alignItems="flex-start" sx={{ mb: 4 }}>
 
@@ -741,6 +780,7 @@ function MainApp({ user, onLogout }) {
       </Snackbar>
 
     </Container>
+    </>
   );
 }
 
@@ -767,7 +807,7 @@ function AuthScreen({ onAuth }) {
           email,
           password,
         });
-        onAuth(res.data); // auto-login після реєстрації
+        onAuth(res.data); // auto-login after registration
       }
     } catch (err) {
       console.error(err);
@@ -865,7 +905,7 @@ function App() {
     }
   });
 
-  // Прописуємо токен у всі axios-запити
+  // Write token in all axios-requests
   useEffect(() => {
     if (auth.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${auth.token}`;
@@ -888,7 +928,6 @@ function App() {
     return <AuthScreen onAuth={handleAuth} />;
   }
 
-  // Можна передати handleLogout кудись у хедер App, якщо захочеш
   return <MainApp user={auth.user} onLogout={handleLogout} />;
 }
 
