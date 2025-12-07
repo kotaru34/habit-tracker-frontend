@@ -5,9 +5,7 @@ import {
   TextField, Button, Box
 } from '@mui/material';
 
-const API_URL = 'http://localhost:5000/api';
-
-const GoalModal = ({ open, onClose, onSuccess, userId, goalToEdit }) => {
+const GoalModal = ({ open, onClose, onSuccess, userId, goalToEdit, apiUrl }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -49,9 +47,9 @@ const GoalModal = ({ open, onClose, onSuccess, userId, goalToEdit }) => {
 
     try {
       if (goalToEdit) {
-        await axios.put(`${API_URL}/goals/${goalToEdit.id}`, payload, { headers: { 'user-id': userId } });
+        await axios.put(`${apiUrl}/goals/${goalToEdit.id}`, payload, { headers: { 'user-id': userId } });
       } else {
-        await axios.post(`${API_URL}/goals`, payload, { headers: { 'user-id': userId } });
+        await axios.post(`${apiUrl}/goals`, payload, { headers: { 'user-id': userId } });
       }
       
       onSuccess();

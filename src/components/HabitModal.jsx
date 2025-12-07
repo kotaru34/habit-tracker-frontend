@@ -6,15 +6,13 @@ import {
   Box, FormGroup, FormControlLabel, Checkbox, FormLabel, Grid 
 } from '@mui/material';
 
-const API_URL = 'http://localhost:5000/api';
-
 const DAYS_OF_WEEK = [
   { id: 1, label: 'Mon' }, { id: 2, label: 'Tue' }, { id: 3, label: 'Wed' },
   { id: 4, label: 'Thu' }, { id: 5, label: 'Fri' }, { id: 6, label: 'Sat' },
   { id: 7, label: 'Sun' }
 ];
 
-const HabitModal = ({ open, onClose, onSuccess, userId, habitToEdit }) => {
+const HabitModal = ({ open, onClose, onSuccess, userId, habitToEdit, apiUrl }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -30,7 +28,7 @@ const HabitModal = ({ open, onClose, onSuccess, userId, habitToEdit }) => {
     const initData = async () => {
       if (open) {
         try {
-          const res = await axios.get(`${API_URL}/categories`, { headers: { 'user-id': userId } });
+          const res = await axios.get(`${apiUrl}/categories`, { headers: { 'user-id': userId } });
           setCategories(res.data);
           
           if (habitToEdit) {
@@ -91,10 +89,10 @@ const HabitModal = ({ open, onClose, onSuccess, userId, habitToEdit }) => {
     try {
       if (habitToEdit) {
         // UPDATE
-        await axios.put(`${API_URL}/habits/${habitToEdit.id}`, payload, { headers: { 'user-id': userId } });
+        await axios.put(`${apiUrl}/habits/${habitToEdit.id}`, payload, { headers: { 'user-id': userId } });
       } else {
         // CREATE
-        await axios.post(`${API_URL}/habits`, payload, { headers: { 'user-id': userId } });
+        await axios.post(`${apiUrl}/habits`, payload, { headers: { 'user-id': userId } });
       }
 
       onSuccess();

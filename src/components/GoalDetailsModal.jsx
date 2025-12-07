@@ -9,9 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 
-const API_URL = 'http://localhost:5000/api';
-
-const GoalDetailsModal = ({ open, onClose, goal, userId, onDeleteGoal, onEditGoal, onGoalUpdated }) => {
+const GoalDetailsModal = ({ open, onClose, goal, userId, onDeleteGoal, onEditGoal, onGoalUpdated, apiUrl }) => {
   const [steps, setSteps] = useState([]);
   const [newStep, setNewStep] = useState('');
 
@@ -25,7 +23,7 @@ const GoalDetailsModal = ({ open, onClose, goal, userId, onDeleteGoal, onEditGoa
 
   const fetchSteps = async () => {
     try {
-      const res = await axios.get(`${API_URL}/goals/${goal.id}/steps`, { headers: { 'user-id': userId } });
+      const res = await axios.get(`${apiUrl}/goals/${goal.id}/steps`, { headers: { 'user-id': userId } });
       setSteps(res.data);
     } catch (err) { console.error(err); }
   };
@@ -34,7 +32,7 @@ const GoalDetailsModal = ({ open, onClose, goal, userId, onDeleteGoal, onEditGoa
     if (!newStep.trim()) return;
     try {
       const res = await axios.post(
-        `${API_URL}/goals/${goal.id}/steps`, 
+        `${apiUrl}/goals/${goal.id}/steps`, 
         { description: newStep }, 
         { headers: { 'user-id': userId } }
       );
@@ -58,7 +56,7 @@ const GoalDetailsModal = ({ open, onClose, goal, userId, onDeleteGoal, onEditGoa
       );
       setSteps(updatedSteps);
       await axios.put(
-        `${API_URL}/goal-steps/${step.id}`,
+        `${apiUrl}/goal-steps/${step.id}`,
         { is_completed: !step.is_completed },
         { headers: { 'user-id': userId } }
       );
@@ -68,7 +66,7 @@ const GoalDetailsModal = ({ open, onClose, goal, userId, onDeleteGoal, onEditGoa
 
   const handleDeleteStep = async (stepId) => {
     try {
-      await axios.delete(`${API_URL}/goal-steps/${stepId}`, { headers: { 'user-id': userId } });
+      await axios.delete(`${apiUrl}/goal-steps/${stepId}`, { headers: { 'user-id': userId } });
       fetchSteps();
       if (onGoalUpdated) onGoalUpdated();
     } catch (err) { console.error(err); }

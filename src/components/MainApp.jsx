@@ -726,6 +726,7 @@ function MainApp({ user, onLogout, apiUrl  }) {
         onSuccess={loadData}
         userId={USER_ID}
         goalToEdit={editingGoal}
+        apiUrl={apiUrl}
       />
 
       <GoalDetailsModal
@@ -736,6 +737,7 @@ function MainApp({ user, onLogout, apiUrl  }) {
         onEditGoal={handleEditGoal}
         onDeleteGoal={handleDeleteGoal}
         onGoalUpdated={loadData}
+        apiUrl={apiUrl}
       />
 
       <Dialog open={dayModalOpen} onClose={() => setDayModalOpen(false)} fullWidth maxWidth="xs">
