@@ -29,9 +29,7 @@ import LogoutIcon         from '@mui/icons-material/Logout';
 import AccountCircleIcon  from '@mui/icons-material/AccountCircle';
 // END UI stuff
 
-const API_URL = 'http://localhost:5000/api';
-
-function MainApp({ user, onLogout }) {
+function MainApp({ user, onLogout, apiUrl  }) {
   const [habits, setHabits]         = useState([]);
   const [goals, setGoals]           = useState([]);
   const [checkins, setCheckins]     = useState([]);
@@ -60,9 +58,9 @@ function MainApp({ user, onLogout }) {
   const loadData = useCallback(async () => {
   try {
     const [habitsRes, checkinsRes, goalsRes] = await Promise.all([
-      axios.get(`${API_URL}/habits`),
-      axios.get(`${API_URL}/checkins`),
-      axios.get(`${API_URL}/goals`),
+      axios.get(`${apiUrl}/habits`),
+      axios.get(`${apiUrl}/checkins`),
+      axios.get(`${apiUrl}/goals`),
     ]);
 
     setHabits(habitsRes.data);
@@ -71,7 +69,7 @@ function MainApp({ user, onLogout }) {
   } catch (err) {
     console.error('Fetching error:', err);
   }
-}, [API_URL]);
+}, [apiUrl]);
 
   const checkinsByDate = React.useMemo(() => {
     const map = {};
@@ -134,12 +132,12 @@ function MainApp({ user, onLogout }) {
 
     try {
       await axios.post(
-        `${API_URL}/checkins`,
+        `${apiUrl}/checkins`,
         { habit_id: habit.id, date: today },
         { headers: { 'user-id': USER_ID } }
       );
 
-      const res = await axios.get(`${API_URL}/checkins`, {
+      const res = await axios.get(`${apiUrl}/checkins`, {
         headers: { 'user-id': USER_ID },
       });
       setCheckins(res.data);
@@ -152,7 +150,7 @@ function MainApp({ user, onLogout }) {
   const handleDeleteHabit = async (habitId) => {
     if (!window.confirm("Delete this habit?")) return;
     try {
-      await axios.delete(`${API_URL}/habits/${habitId}`, { headers: { 'user-id': USER_ID } });
+      await axios.delete(`${apiUrl}/habits/${habitId}`, { headers: { 'user-id': USER_ID } });
       loadData();
     } catch (err) { console.error(err); }
   };
@@ -183,7 +181,7 @@ function MainApp({ user, onLogout }) {
   const handleDeleteGoal = async (goalId) => {
       if (!window.confirm("Delete this goal? All steps will be deleted too.")) return;
       try {
-          await axios.delete(`${API_URL}/goals/${goalId}`, { headers: { 'user-id': USER_ID } });
+          await axios.delete(`${apiUrl}/goals/${goalId}`, { headers: { 'user-id': USER_ID } });
           setIsGoalDetailsOpen(false);
           loadData();
       } catch (err) { console.error(err); }
