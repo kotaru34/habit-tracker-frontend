@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'; // Додали useCallback
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -8,26 +8,27 @@ import GoalModal from './components/GoalModal';
 import GoalCard from './components/GoalCard';
 import GoalDetailsModal from './components/GoalDetailsModal';
 
+// UI stuff, not interesting for logic 
 import { 
   Container, Typography, Card, CardContent, Button, Grid, Box, 
   Chip, Fab, IconButton, Dialog, DialogTitle, DialogContent, List,
-  ListItem, ListItemIcon, ListItemText, Snackbar, Alert
+  ListItem, ListItemIcon, ListItemText, Snackbar, Alert, TextField
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import FlagIcon        from '@mui/icons-material/Flag';
-import AddIcon         from '@mui/icons-material/Add';
-import EditIcon        from '@mui/icons-material/Edit';
-import DeleteIcon      from '@mui/icons-material/Delete';
-import CancelIcon      from '@mui/icons-material/Cancel';
-import CheckIcon       from '@mui/icons-material/Check';
-import TodayIcon        from '@mui/icons-material/Today';
-import EventRepeatIcon  from '@mui/icons-material/EventRepeat';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-
+import CheckCircleIcon    from '@mui/icons-material/CheckCircle';
+import FlagIcon           from '@mui/icons-material/Flag';
+import AddIcon            from '@mui/icons-material/Add';
+import EditIcon           from '@mui/icons-material/Edit';
+import DeleteIcon         from '@mui/icons-material/Delete';
+import CancelIcon         from '@mui/icons-material/Cancel';
+import CheckIcon          from '@mui/icons-material/Check';
+import TodayIcon          from '@mui/icons-material/Today';
+import EventRepeatIcon    from '@mui/icons-material/EventRepeat';
+import CalendarMonthIcon  from '@mui/icons-material/CalendarMonth';
+// END UI stuff
 
 const API_URL = 'http://localhost:5000/api';
 
-function App() {
+function MainApp({ user, onLogout }) {
   const [habits, setHabits]         = useState([]);
   const [goals, setGoals]           = useState([]);
   const [checkins, setCheckins]     = useState([]);
@@ -51,7 +52,7 @@ function App() {
 
   const reminderTimeoutsRef = useRef({});
 
-  const USER_ID = 1; 
+  const USER_ID = user.id;
 
   const loadData = useCallback(async () => {
     try {
@@ -741,6 +742,154 @@ function App() {
 
     </Container>
   );
+}
+
+function AuthScreen({ onAuth }) {
+  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (mode === 'login') {
+        const res = await axios.post(`${API_URL}/auth/login`, { email, password });
+        onAuth(res.data); // { token, user }
+      } else {
+        const res = await axios.post(`${API_URL}/auth/register`, {
+          username,
+          email,
+          password,
+        });
+        onAuth(res.data); // auto-login після реєстрації
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Auth error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Container maxWidth="xs" sx={{ mt: 8 }}>
+      <Card sx={{ p: 3, borderRadius: 3, boxShadow: 6 }}>
+        <Typography variant="h5" align="center" sx={{ mb: 2, fontWeight: 600 }}>
+          {mode === 'login' ? 'Log in' : 'Sign up'}
+        </Typography>
+
+        <form onSubmit={handleSubmit}>
+          {mode === 'register' && (
+            <TextField
+              label="Username"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          )}
+
+          <TextField
+            label="Email"
+            type="email"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading
+              ? 'Please wait…'
+              : mode === 'login'
+              ? 'Log in'
+              : 'Create account'}
+          </Button>
+        </form>
+
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Button
+            size="small"
+            onClick={() =>
+              setMode((m) => (m === 'login' ? 'register' : 'login'))
+            }
+          >
+            {mode === 'login'
+              ? "Don't have an account? Sign up"
+              : 'Already have an account? Log in'}
+          </Button>
+        </Box>
+      </Card>
+    </Container>
+  );
+}
+
+function App() {
+  const [auth, setAuth] = useState(() => {
+    try {
+      const saved = localStorage.getItem('auth');
+      return saved ? JSON.parse(saved) : { token: null, user: null };
+    } catch {
+      return { token: null, user: null };
+    }
+  });
+
+  // Прописуємо токен у всі axios-запити
+  useEffect(() => {
+    if (auth.token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${auth.token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+  }, [auth.token]);
+
+  const handleAuth = (data) => {
+    setAuth(data);               // { token, user }
+    localStorage.setItem('auth', JSON.stringify(data));
+  };
+
+  const handleLogout = () => {
+    setAuth({ token: null, user: null });
+    localStorage.removeItem('auth');
+  };
+
+  if (!auth.token || !auth.user) {
+    return <AuthScreen onAuth={handleAuth} />;
+  }
+
+  // Можна передати handleLogout кудись у хедер App, якщо захочеш
+  return <MainApp user={auth.user} onLogout={handleLogout} />;
 }
 
 export default App;
