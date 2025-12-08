@@ -61,7 +61,7 @@ const HabitModal = ({ open, onClose, onSuccess, userId, habitToEdit, apiUrl }) =
     };
 
     initData();
-  }, [open, habitToEdit, userId]); // Dependencies: reload when opened or edited habit
+  }, [open, habitToEdit, userId, apiUrl]); // Dependencies: reload when opened or edited habit
 
   // Checkbox proccessor
   const handleDayToggle = (dayId) => {
@@ -132,9 +132,7 @@ const HabitModal = ({ open, onClose, onSuccess, userId, habitToEdit, apiUrl }) =
               label="Category"
               onChange={(e) => setCategoryId(e.target.value)}
             >
-              {categories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
-              ))}
+              {categories.map((cat) => ( <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>))}
             </Select>
           </FormControl>
 

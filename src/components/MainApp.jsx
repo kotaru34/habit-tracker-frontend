@@ -717,7 +717,8 @@ function MainApp({ user, onLogout, apiUrl  }) {
         onClose={() => setIsModalOpen(false)} 
         onSuccess={loadData}
         userId={USER_ID}
-        habitToEdit={editingHabit} 
+        habitToEdit={editingHabit}        
+        apiUrl={apiUrl}
       />
       
       <GoalModal
